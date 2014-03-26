@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Tue Mar 25 15:35:03 CET 2014:
+ Zavádìní serveru Derby verze The Apache Software Foundation - Apache Derby - 10.8.3.0 - (1405108): instance a816c00e-0144-f9aa-78e6-000002e4f118
+v adresáøi databáze memory:C:\Dropbox\actual_semestr\java_seminar\HotelIS\GuestManagerImplTest  sun.misc.Launcher$AppClassLoader@231bf785 
+
+java.vendor=Oracle Corporation
+java.runtime.version=1.7.0_51-b13
+user.dir=C:\Dropbox\actual_semestr\java_seminar\HotelIS
+os.name=Windows 8
+os.arch=amd64
+os.version=6.2
+derby.system.home=null
+Byl spuštìn zavadìè tøídy databáze - derby.database.classpath=''
