@@ -1,10 +1,15 @@
-package hotelis;
+package hotelis.backend;
+
+import hotelis.common.DBUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.sql.SQLException;
 import java.util.List;
+import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,10 +22,26 @@ import static org.junit.Assert.*;
 public class RoomManagerImplTest {
 
     private RoomManagerImpl manager;
+    private DataSource dataSource;
 
+    private static DataSource prepareDataSource() throws SQLException {
+        BasicDataSource dataSource = new BasicDataSource();
+        //we will use in memory database
+        dataSource.setUrl("jdbc:derby:memory:roommanager-test;create=true");
+        return dataSource;
+    }
+    
     @Before
     public void setUp() throws SQLException {
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource,RoomManager.class.getResource("createTables.sql"));
         manager = new RoomManagerImpl();
+        manager.setDataSource(dataSource);
+    }
+    
+    @After
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(dataSource,RoomManager.class.getResource("dropTables.sql"));
     }
 
     /**
@@ -36,7 +57,7 @@ public class RoomManagerImplTest {
         Room result = manager.findRoomById(roomId);
         assertEquals(room, result);
         assertNotSame(room, result);
-        assertDeepEquals(room, result);
+        assertRoomDeepEquals(room, result);
     }
 
     /**
@@ -54,7 +75,7 @@ public class RoomManagerImplTest {
 
         Room result = manager.findRoomById(roomId);
         assertEquals(r1, result);
-        assertDeepEquals(r1, result);
+        assertRoomDeepEquals(r1, result);
 
     }
 
@@ -79,7 +100,7 @@ public class RoomManagerImplTest {
         Collections.sort(expected, idComparator);
 
         assertEquals(expected, actual);
-        assertDeepEquals(expected, actual);
+        assertRoomDeepEquals(expected, actual);
 
     }
     
@@ -191,17 +212,17 @@ public class RoomManagerImplTest {
         manager.createRoom(r1);
         manager.createRoom(r2);
         Integer roomId = r1.getId();
-
-        r1 = manager.findRoomById(roomId);
+       
         r1.setCapacity(5);
         manager.updateRoom(r1);
+         r1 = manager.findRoomById(roomId);
         assertEquals("A1", r1.getRoomNumber());
         assertEquals(false, r1.isDoubleBed());
         assertEquals(5, r1.getCapacity());
         assertEquals("First room", r1.getNote());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(r2, manager.findRoomById(r2.getId()));
+        assertRoomDeepEquals(r2, manager.findRoomById(r2.getId()));
     }
 
     @Test
@@ -213,16 +234,16 @@ public class RoomManagerImplTest {
         manager.createRoom(r2);
         Integer roomId = r1.getId();
 
-        r1 = manager.findRoomById(roomId);
         r1.setRoomNumber("B1");
         manager.updateRoom(r1);
+        r1 = manager.findRoomById(roomId);
         assertEquals("B1", r1.getRoomNumber());
         assertEquals(false, r1.isDoubleBed());
         assertEquals(1, r1.getCapacity());
         assertEquals("First room", r1.getNote());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(r2, manager.findRoomById(r2.getId()));
+        assertRoomDeepEquals(r2, manager.findRoomById(r2.getId()));
     }
 
     @Test
@@ -234,16 +255,16 @@ public class RoomManagerImplTest {
         manager.createRoom(r2);
         Integer roomId = r1.getId();
 
-        r1 = manager.findRoomById(roomId);
         r1.setDoubleBed(true);
         manager.updateRoom(r1);
+        r1 = manager.findRoomById(roomId);
         assertEquals("A1", r1.getRoomNumber());
         assertEquals(true, r1.isDoubleBed());
         assertEquals(1, r1.getCapacity());
         assertEquals("First room", r1.getNote());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(r2, manager.findRoomById(r2.getId()));
+        assertRoomDeepEquals(r2, manager.findRoomById(r2.getId()));
     }
 
     @Test
@@ -255,24 +276,24 @@ public class RoomManagerImplTest {
         manager.createRoom(r2);
         Integer roomId = r1.getId();
 
-        r1 = manager.findRoomById(roomId);
         r1.setNote("BEST room");
         manager.updateRoom(r1);
+        r1 = manager.findRoomById(roomId);
         assertEquals("A1", r1.getRoomNumber());
         assertEquals(false, r1.isDoubleBed());
         assertEquals(1, r1.getCapacity());
         assertEquals("BEST room", r1.getNote());
 
-        r1 = manager.findRoomById(roomId);
         r1.setNote(null);
         manager.updateRoom(r1);
+        r1 = manager.findRoomById(roomId);
         assertEquals("A1", r1.getRoomNumber());
         assertEquals(false, r1.isDoubleBed());
         assertEquals(1, r1.getCapacity());
         assertNull(r1.getNote());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(r2, manager.findRoomById(r2.getId()));
+        assertRoomDeepEquals(r2, manager.findRoomById(r2.getId()));
     }
 
     /**
@@ -352,7 +373,7 @@ public class RoomManagerImplTest {
         manager.updateRoom(room);
     }
 
-    private static Room newRoom(int capacity, String roomNumber, boolean doubleBed, String note) {
+    static Room newRoom(int capacity, String roomNumber, boolean doubleBed, String note) {
         Room room = new Room();
         room.setCapacity(capacity);
         room.setRoomNumber(roomNumber);
@@ -361,15 +382,15 @@ public class RoomManagerImplTest {
         return room;
     }
 
-    private void assertDeepEquals(List<Room> expectedList, List<Room> actualList) {
+    static void assertRoomDeepEquals(List<Room> expectedList, List<Room> actualList) {
         for (int i = 0; i < expectedList.size(); i++) {
             Room expected = expectedList.get(i);
             Room actual = actualList.get(i);
-            assertDeepEquals(expected, actual);
+            assertRoomDeepEquals(expected, actual);
         }
     }
 
-    private void assertDeepEquals(Room expected, Room actual) {
+    static void assertRoomDeepEquals(Room expected, Room actual) {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getCapacity(), actual.getCapacity());
         assertEquals(expected.getRoomNumber(), actual.getRoomNumber());
@@ -377,11 +398,21 @@ public class RoomManagerImplTest {
         assertEquals(expected.getNote(), actual.getNote());
     }
 
-    private static Comparator<Room> idComparator = new Comparator<Room>() {
+    private final static Comparator<Room> idComparator = new Comparator<Room>() {
 
         @Override
         public int compare(Room r1, Room r2) {
-            return Integer.valueOf(r1.getId()).compareTo(Integer.valueOf(r2.getId()));
+            Integer Id1 = r1.getId();
+            Integer Id2 = r2.getId();
+            if (Id1 == null && Id2 == null) {
+                return 0;
+            } else if (Id1 == null && Id2 != null) {
+                return -1;
+            } else if (Id1 != null && Id2 == null) {
+                return 1;
+            } else {
+                return Id1.compareTo(Id2);
+            }
         }
     };
 }

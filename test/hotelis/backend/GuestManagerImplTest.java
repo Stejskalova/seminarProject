@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package hotelis;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+package hotelis.backend;
+
+import hotelis.common.DBUtils;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +17,8 @@ import java.util.SimpleTimeZone;
 
 import static org.junit.Assert.*;
 import java.util.Date;
+import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 
 /**
@@ -30,30 +28,32 @@ import org.junit.After;
 public class GuestManagerImplTest {
 
     private GuestManagerImpl manager;
-    private Connection connection;
+    private DataSource dataSource;
+    
+    private static DataSource prepareDataSource() throws SQLException {
+        BasicDataSource dataSource = new BasicDataSource();
+        //we will use in memory database
+        dataSource.setUrl("jdbc:derby:memory:guestmanager-test;create=true");
+        return dataSource;
+    }
 
     @Before
     public void setUp() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:derby:memory:GuestManagerImplTest;create=true");
-        connection.prepareStatement("CREATE TABLE GUEST("
-                + "id int primary key generated always as identity,"
-                + "name varchar(80) not null,"
-                + "address varchar(255) not null,"
-                + "phone varchar(20) not null,"
-                + "birthdate timestamp not null)").executeUpdate();
-        manager = new GuestManagerImpl(connection);
+        dataSource = prepareDataSource();
+        DBUtils.executeSqlScript(dataSource,GuestManager.class.getResource("createTables.sql"));
+        manager = new GuestManagerImpl();
+        manager.setDataSource(dataSource);
     }
     
     @After
     public void tearDown() throws SQLException {
-        connection.prepareStatement("DROP TABLE GUEST").executeUpdate();        
-        connection.close();
+        DBUtils.executeSqlScript(dataSource,GuestManager.class.getResource("dropTables.sql"));
     }
     
 
     @Test
     public void createGuest() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
         manager.createGuest(guest);
 
@@ -62,7 +62,7 @@ public class GuestManagerImplTest {
         Guest result = manager.findGuestById(guestId);
         assertEquals(guest, result);
         assertNotSame(guest, result);
-        assertDeepEquals(guest, result);
+        assertGuestDeepEquals(guest, result);
     }
 
     @Test
@@ -70,14 +70,14 @@ public class GuestManagerImplTest {
 
         assertNull(manager.findGuestById(1));
 
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
 
         Guest result = manager.findGuestById(guestId);
         assertEquals(guest, result);
-        assertDeepEquals(guest, result);
+        assertGuestDeepEquals(guest, result);
     }
 
     @Test
@@ -85,8 +85,8 @@ public class GuestManagerImplTest {
 
         assertTrue(manager.findAllGuests().isEmpty());
 
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
 
         Guest guest1 = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
@@ -101,7 +101,7 @@ public class GuestManagerImplTest {
         Collections.sort(expected, idComparator);
 
         assertEquals(expected, actual);
-        assertDeepEquals(expected, actual);
+        assertGuestDeepEquals(expected, actual);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -111,7 +111,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullName() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest(null, "Praha, Slezska 33", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -119,7 +119,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidName() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest(" \t\n", "Praha, Slezska 33", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -127,7 +127,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullAddress() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Martin Dvorak", null, "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -135,7 +135,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidAddress() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Martin Dvorak", " \t\n", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -143,7 +143,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullPhone() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", null, birthdate);
 
         manager.createGuest(guest);
@@ -151,7 +151,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidPhone() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", " \t\n", birthdate);
 
         manager.createGuest(guest);
@@ -165,7 +165,7 @@ public class GuestManagerImplTest {
 
     @Test
     public void addGuestWithValidAttributes() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest;
 
         // these variants should be ok
@@ -188,8 +188,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void updateGuestName() {
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -205,13 +205,13 @@ public class GuestManagerImplTest {
         assertEquals(birthdate1, guest.getBirthdate());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(guest2, manager.findGuestById(guest2.getId()));
+        assertGuestDeepEquals(guest2, manager.findGuestById(guest2.getId()));
     }
 
     @Test
     public void updateGuestAddress() {
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -227,13 +227,13 @@ public class GuestManagerImplTest {
         assertEquals(birthdate1, guest.getBirthdate());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(guest2, manager.findGuestById(guest2.getId()));
+        assertGuestDeepEquals(guest2, manager.findGuestById(guest2.getId()));
     }
 
     @Test
     public void updateGuestPhone() {
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -249,20 +249,20 @@ public class GuestManagerImplTest {
         assertEquals(birthdate1, guest.getBirthdate());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(guest2, manager.findGuestById(guest2.getId()));
+        assertGuestDeepEquals(guest2, manager.findGuestById(guest2.getId()));
     }
 
     @Test
     public void updateGuestBirthdate() {
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
         manager.createGuest(guest2);
         Integer guestId = guest.getId();
         
-        Date newBirthdate = getDateFromCalendar(1989,6,2);
+        Date newBirthdate = getDate(1989,6,2);
         guest.setBirthdate(newBirthdate);
         manager.updateGuest(guest);
         guest = manager.findGuestById(guestId);
@@ -272,12 +272,12 @@ public class GuestManagerImplTest {
         assertEquals(newBirthdate, guest.getBirthdate());
 
         // Check if updates didn't affected other records
-        assertDeepEquals(guest2, manager.findGuestById(guest2.getId()));
+        assertGuestDeepEquals(guest2, manager.findGuestById(guest2.getId()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullValue() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
 
@@ -286,7 +286,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullId() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -298,7 +298,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidId() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -310,7 +310,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullName() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -322,7 +322,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidName() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -334,7 +334,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullAddress() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -346,7 +346,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidAddress() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -358,7 +358,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullPhone() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -370,7 +370,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidPhone() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -382,7 +382,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullDate() {
-        Date birthdate = getDateFromCalendar(1974,12,18);
+        Date birthdate = getDate(1974,12,18);
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -394,8 +394,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void deleteGuest() {
-        Date birthdate1 = getDateFromCalendar(1985,5,27);
-        Date birthdate2 = getDateFromCalendar(1974,12,18);
+        Date birthdate1 = getDate(1985,5,27);
+        Date birthdate2 = getDate(1974,12,18);
         Guest guest1 = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest1);
@@ -418,7 +418,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteGuestWithNullId() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
 
         guest.setId(null);
@@ -427,14 +427,14 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteGuestWithWrongId() {
-        Date birthdate = getDateFromCalendar(1985,5,27);
+        Date birthdate = getDate(1985,5,27);
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
 
         guest.setId(1);
         manager.deleteGuest(guest);
     }
 
-    private static Guest newGuest(String name, String address, String phone, Date birthdate) {
+    static Guest newGuest(String name, String address, String phone, Date birthdate) {
         Guest guest = new Guest();
         guest.setName(name);
         guest.setAddress(address);
@@ -443,15 +443,15 @@ public class GuestManagerImplTest {
         return guest;
     }
 
-    private void assertDeepEquals(List<Guest> expectedList, List<Guest> actualList) {
+    static void assertGuestDeepEquals(List<Guest> expectedList, List<Guest> actualList) {
         for (int i = 0; i < expectedList.size(); i++) {
             Guest expected = expectedList.get(i);
             Guest actual = actualList.get(i);
-            assertDeepEquals(expected, actual);
+            assertGuestDeepEquals(expected, actual);
         }
     }
 
-    private void assertDeepEquals(Guest expected, Guest actual) {
+    static void assertGuestDeepEquals(Guest expected, Guest actual) {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getAddress(), actual.getAddress());
@@ -459,7 +459,7 @@ public class GuestManagerImplTest {
         assertEquals(expected.getBirthdate(), actual.getBirthdate());
     }
     
-    private Date getDateFromCalendar(int year, int month, int day) {
+    static Date getDate(int year, int month, int day) {
         Calendar calendar = new GregorianCalendar(new SimpleTimeZone(0, "Europe/London"), Locale.UK);
         calendar.set(year, month - 1, day, 0, 0, 0);
         return calendar.getTime();
@@ -468,8 +468,18 @@ public class GuestManagerImplTest {
     private static final Comparator<Guest> idComparator = new Comparator<Guest>() {
 
         @Override
-        public int compare(Guest o1, Guest o2) {
-            return Integer.valueOf(o1.getId()).compareTo(Integer.valueOf(o2.getId()));
+        public int compare(Guest g1, Guest g2) {
+            Integer Id1 = g1.getId();
+            Integer Id2 = g2.getId();
+            if (Id1 == null && Id2 == null) {
+                return 0;
+            } else if (Id1 == null && Id2 != null) {
+                return -1;
+            } else if (Id1 != null && Id2 == null) {
+                return 1;
+            } else {
+                return Id1.compareTo(Id2);
+            }
         }
     };
 

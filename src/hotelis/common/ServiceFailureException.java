@@ -1,9 +1,8 @@
-package hotelis;
+package hotelis.common;
 
 /**
- * This exception indicates service failure.
  *  
- * @author Petr Adamek
+ * @author Karel Vaculik
  */
 public class ServiceFailureException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package hotelis;
+package hotelis.backend;
 
 import java.util.Objects;
 
