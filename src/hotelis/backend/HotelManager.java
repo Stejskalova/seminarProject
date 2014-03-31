@@ -1,7 +1,6 @@
 package hotelis.backend;
 
 import hotelis.common.ServiceFailureException;
-import hotelis.common.IllegalEntityException;
 import java.util.List;
 
 /**
@@ -12,15 +11,15 @@ import java.util.List;
 public interface HotelManager {
     
     
-    Room findRoomWithGuest(Guest guest) throws ServiceFailureException, IllegalEntityException;
+    Room findRoomWithGuest(Guest guest) throws ServiceFailureException, IllegalArgumentException;
     
    
-    List<Guest> getGuestsInRoom(Room room) throws ServiceFailureException, IllegalEntityException;
+    List<Guest> getGuestsInRoom(Room room) throws ServiceFailureException, IllegalArgumentException;
 
     
-    void lodgeGuestToRoom(Guest guest, Room room) throws ServiceFailureException, IllegalEntityException;
+    void lodgeGuestToRoom(Guest guest, Room room) throws ServiceFailureException, IllegalArgumentException;
     
 
-    void dislodgeGuestFromRoom(Guest guest, Room room) throws ServiceFailureException, IllegalEntityException;    
+    void dislodgeGuestFromRoom(Guest guest, Room room) throws ServiceFailureException, IllegalArgumentException;    
     
 }

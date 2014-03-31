@@ -5,7 +5,7 @@
 package hotelis.backend;
 
 import hotelis.common.DBUtils;
-import hotelis.common.IllegalEntityException;
+import hotelis.common.IllegalArgumentException;
 import java.sql.SQLException;
 import java.util.List;
 import javax.sql.DataSource;
@@ -118,7 +118,7 @@ public class HotelManagerImplTest {
         try {
             manager.findRoomWithGuest(guestWithNullId);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
         
     }
 
@@ -149,7 +149,7 @@ public class HotelManagerImplTest {
         try {
             manager.getGuestsInRoom(roomWithNullId);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
     }
 
@@ -187,12 +187,12 @@ public class HotelManagerImplTest {
         try {
             manager.lodgeGuestToRoom(guest1, room3);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.lodgeGuestToRoom(guest1, room2);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.lodgeGuestToRoom(null, room2);
@@ -202,12 +202,12 @@ public class HotelManagerImplTest {
         try {
             manager.lodgeGuestToRoom(guestWithNullId, room2);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.lodgeGuestToRoom(guestNotInDB, room2);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.lodgeGuestToRoom(guest2, null);
@@ -217,18 +217,18 @@ public class HotelManagerImplTest {
         try {
             manager.lodgeGuestToRoom(guest2, roomWithNullId);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.lodgeGuestToRoom(guest2, roomNotInDB);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         // Try to add body to grave that is already full
         try {
             manager.lodgeGuestToRoom(guest2, room1);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         // Check that previous tests didn't affect data in database
         assertGuestDeepEquals(guestsInRoom1, manager.getGuestsInRoom(room1));
@@ -275,12 +275,12 @@ public class HotelManagerImplTest {
         try {
             manager.dislodgeGuestFromRoom(guest3, room1);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.dislodgeGuestFromRoom(guest1, room1);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
         
         try {
             manager.dislodgeGuestFromRoom(null, room2);
@@ -290,12 +290,12 @@ public class HotelManagerImplTest {
         try {
             manager.dislodgeGuestFromRoom(guestWithNullId, room2);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.dislodgeGuestFromRoom(guestNotInDB, room2);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.dislodgeGuestFromRoom(guest2, null);
@@ -305,12 +305,12 @@ public class HotelManagerImplTest {
         try {
             manager.dislodgeGuestFromRoom(guest2, roomWithNullId);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
 
         try {
             manager.dislodgeGuestFromRoom(guest2, roomNotInDB);
             fail();
-        } catch (IllegalEntityException ex) {}
+        } catch (IllegalArgumentException ex) {}
     
         // Check that previous tests didn't affect data in database
         assertGuestDeepEquals(guestsInRoom1, manager.getGuestsInRoom(room1));

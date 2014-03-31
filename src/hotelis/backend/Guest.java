@@ -1,6 +1,6 @@
 package hotelis.backend;
 
-import java.util.Date;
+import java.sql.Date;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

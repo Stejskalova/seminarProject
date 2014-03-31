@@ -5,7 +5,6 @@
  */
 package hotelis.backend;
 
-import hotelis.common.IllegalEntityException;
 import hotelis.common.ServiceFailureException;
 import java.util.List;
 
@@ -16,22 +15,22 @@ import java.util.List;
 public class HotelManagerImpl implements HotelManager {
 
     @Override
-    public Room findRoomWithGuest(Guest guest) throws ServiceFailureException, IllegalEntityException {
+    public Room findRoomWithGuest(Guest guest) throws ServiceFailureException, IllegalArgumentException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<Guest> getGuestsInRoom(Room room) throws ServiceFailureException, IllegalEntityException {
+    public List<Guest> getGuestsInRoom(Room room) throws ServiceFailureException, IllegalArgumentException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void lodgeGuestToRoom(Guest guest, Room room) throws ServiceFailureException, IllegalEntityException {
+    public void lodgeGuestToRoom(Guest guest, Room room) throws ServiceFailureException, IllegalArgumentException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void dislodgeGuestFromRoom(Guest guest, Room room) throws ServiceFailureException, IllegalEntityException {
+    public void dislodgeGuestFromRoom(Guest guest, Room room) throws ServiceFailureException, IllegalArgumentException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

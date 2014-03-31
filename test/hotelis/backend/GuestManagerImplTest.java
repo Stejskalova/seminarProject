@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
 
 import static org.junit.Assert.*;
-import java.util.Date;
+import java.sql.Date;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class GuestManagerImplTest {
 
     @Test
     public void createGuest() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
         manager.createGuest(guest);
 
@@ -70,7 +70,7 @@ public class GuestManagerImplTest {
 
         assertNull(manager.findGuestById(1));
 
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -85,8 +85,8 @@ public class GuestManagerImplTest {
 
         assertTrue(manager.findAllGuests().isEmpty());
 
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
 
         Guest guest1 = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
@@ -111,7 +111,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullName() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest(null, "Praha, Slezska 33", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -119,7 +119,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidName() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest(" \t\n", "Praha, Slezska 33", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -127,7 +127,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullAddress() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Martin Dvorak", null, "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -135,7 +135,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidAddress() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Martin Dvorak", " \t\n", "+420 723 544 689", birthdate);
 
         manager.createGuest(guest);
@@ -143,7 +143,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithNullPhone() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", null, birthdate);
 
         manager.createGuest(guest);
@@ -151,7 +151,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void addGuestWithInvalidPhone() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", " \t\n", birthdate);
 
         manager.createGuest(guest);
@@ -165,7 +165,7 @@ public class GuestManagerImplTest {
 
     @Test
     public void addGuestWithValidAttributes() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest;
 
         // these variants should be ok
@@ -188,8 +188,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void updateGuestName() {
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -210,8 +210,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void updateGuestAddress() {
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -232,8 +232,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void updateGuestPhone() {
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
@@ -254,15 +254,15 @@ public class GuestManagerImplTest {
 
     @Test
     public void updateGuestBirthdate() {
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest);
         manager.createGuest(guest2);
         Integer guestId = guest.getId();
         
-        Date newBirthdate = getDate(1989,6,2);
+        Date newBirthdate = getDate("1989-06-02");
         guest.setBirthdate(newBirthdate);
         manager.updateGuest(guest);
         guest = manager.findGuestById(guestId);
@@ -277,7 +277,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullValue() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
 
@@ -286,7 +286,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullId() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -298,7 +298,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidId() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -310,7 +310,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullName() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -322,7 +322,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidName() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -334,7 +334,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullAddress() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -346,7 +346,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidAddress() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -358,7 +358,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullPhone() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -370,7 +370,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithInvalidPhone() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -382,7 +382,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateGuestWithNullDate() {
-        Date birthdate = getDate(1974,12,18);
+        Date birthdate = getDate("1974-12-18");
         Guest guest = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate);
         manager.createGuest(guest);
         Integer guestId = guest.getId();
@@ -394,8 +394,8 @@ public class GuestManagerImplTest {
 
     @Test
     public void deleteGuest() {
-        Date birthdate1 = getDate(1985,5,27);
-        Date birthdate2 = getDate(1974,12,18);
+        Date birthdate1 = getDate("1985-05-27");
+        Date birthdate2 = getDate("1974-12-18");
         Guest guest1 = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate1);
         Guest guest2 = newGuest("Martin Dvorak", "Praha, Slezska 33", "+420 723 544 689", birthdate2);
         manager.createGuest(guest1);
@@ -418,7 +418,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteGuestWithNullId() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
 
         guest.setId(null);
@@ -427,7 +427,7 @@ public class GuestManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteGuestWithWrongId() {
-        Date birthdate = getDate(1985,5,27);
+        Date birthdate = getDate("1985-05-27");
         Guest guest = newGuest("Ondrej Novy", "Brno, Zahradni 9", "+420 605 889 775", birthdate);
 
         guest.setId(1);
@@ -459,10 +459,8 @@ public class GuestManagerImplTest {
         assertEquals(expected.getBirthdate(), actual.getBirthdate());
     }
     
-    static Date getDate(int year, int month, int day) {
-        Calendar calendar = new GregorianCalendar(new SimpleTimeZone(0, "Europe/London"), Locale.UK);
-        calendar.set(year, month - 1, day, 0, 0, 0);
-        return calendar.getTime();
+    static Date getDate(String date) {
+                return Date.valueOf(date);
     }
 
     private static final Comparator<Guest> idComparator = new Comparator<Guest>() {

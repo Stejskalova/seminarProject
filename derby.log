@@ -1,13 +1,13 @@
 ----------------------------------------------------------------
-Tue Mar 25 15:35:03 CET 2014:
- Zavádìní serveru Derby verze The Apache Software Foundation - Apache Derby - 10.8.3.0 - (1405108): instance a816c00e-0144-f9aa-78e6-000002e4f118
-v adresáøi databáze memory:C:\Dropbox\actual_semestr\java_seminar\HotelIS\GuestManagerImplTest  sun.misc.Launcher$AppClassLoader@231bf785 
-
+Mon Mar 31 19:34:41 CEST 2014:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance a816c00e-0145-1935-1944-000002ddcb10 
+on database directory memory:C:\home\seminarProject\guestmanager-test with class loader sun.misc.Launcher$AppClassLoader@231bf785 
+Loaded from file:/C:/home/seminarProject/lib/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.7.0_51-b13
-user.dir=C:\Dropbox\actual_semestr\java_seminar\HotelIS
+user.dir=C:\home\seminarProject
 os.name=Windows 8
 os.arch=amd64
 os.version=6.2
 derby.system.home=null
-Byl spuštìn zavadìè tøídy databáze - derby.database.classpath=''
+Database Class Loader started - derby.database.classpath=''
